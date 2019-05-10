@@ -18,7 +18,7 @@ class ClientSocket():
         self.socket.sendto(str(os.path.getsize(file_name)).encode(), self.addr)
         
         file_size = int(os.path.getsize(file_name))
-	
+        print(file_size)	
         print("%s is sending now" % file_name)
 
         f = open(file_name,"rb")
