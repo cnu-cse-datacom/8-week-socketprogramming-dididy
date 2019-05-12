@@ -3,6 +3,7 @@ import time
 import sys
 import os.path 
 import os
+import hashlib
 
 FLAGS = None
 class ClientSocket():
@@ -16,6 +17,7 @@ class ClientSocket():
         file_name = FLAGS.filename
         self.socket.sendto(file_name.encode(), self.addr)
         self.socket.sendto(str(os.path.getsize(file_name)).encode(), self.addr)
+    
         
         file_size = int(os.path.getsize(file_name))
         print(file_size)	
@@ -23,25 +25,37 @@ class ClientSocket():
 
         f = open(file_name,"rb")
 
+        filehash = hashlib.md5()
+        filehash.update(open(file_name, "rb").read())
+
+
+        self.socket.sendto(filehash.hexdigest().encode('utf-8'), self.addr)
         i = 0
 
         data = f.read(self.buf)
+        get_percent = 0
         while (data):
             if(self.socket.sendto(data, self.addr)):
-                print ("dst:", FLAGS.ip, " file_name:", file_name)
+                hash_data = hashlib.md5(data)
+                print ("dst:" + FLAGS.ip + " file_name:" + file_name)
+                self.socket.sendto(hash_data.hexdigest().encode('utf-8'), self.addr)
+                time.sleep(0.02)
 	
                 data = f.read(self.buf)
-                time.sleep(0.02)
                 
-                if(self.buf < file_size):
+                if(self.buf <= file_size):
                     get_percent = (self.buf * i / file_size * 100)
-                    if(self.value_is_int(get_percent) == True): 
-                        os.system('cls' if os.name == 'nt' else 'clear')
-                        print('\r[{0}] {1}%'.format('#'*(int(get_percent/2)), round(get_percent, 4)))
-                        print("current_size / total_size =", self.buf * i, "/", file_size) 
+                    os.system('cls' if os.name == 'nt' else 'clear')
+                    print('\r[{0}] {1}%'.format('#'*(int(get_percent/2)), get_percent))
+                    print("current_size / total_size =", self.buf * i, "/", file_size) 
                     i = i + 1
 
+
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print('\r[{0}] {1}%'.format('#'*(int(get_percent/2)), 100))
+        print("current_size / total_size =", file_size, "/", file_size) 
         print(file_name, "send completely!")
+        print("md5: ",filehash.hexdigest())
         self.socket.close()
         f.close()
     
