@@ -71,7 +71,7 @@ class ClientSocket():
                 print("%s receive finished!" % file_name)
             else:
                 print("Receive failed..")
-            print("Error rate : ", ((i - j ) / i) * 100, "%")
+            print("Error rate : ", 100 - ((i - j ) / i) * 100, "%")
 
 
             print("(send)md5: ", data_md.decode('utf-8'))
