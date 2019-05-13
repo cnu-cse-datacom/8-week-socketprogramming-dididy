@@ -32,47 +32,53 @@ class ClientSocket():
             i = 0
 
             j = 0
-            while(i * self.buf <= file_size):
+            while(i * self.buf <= file_size + 1023):
+               i = i + 1
                data,addr = self.socket.recvfrom(self.buf)
                hash_recv, addr = self.socket.recvfrom(self.buf)
 
                f.write(data)
-
-               hash_data = hashlib.md5(data).hexdigest()
-               hash_md = md5.update(data)
-               hash_recv = hash_recv.decode("utf-8")
                
-               if(hash_recv == hash_data):
-                   print(hash_data)
-                   print(hash_recv)
-                   print("same md5")
-               else:
-                   print("error")
-                   j = j +1
+               if(data):
 
+                   hash_data = hashlib.md5(data).hexdigest()
+                   md5.update(data)
+                   hash_recv = hash_recv.decode('utf-8')
+               
+                   if(hash_recv == hash_data):
+                       print(hash_data)
+                       print(hash_recv)
+                       print("same md5")
+                   else:
+                       print("error")
+                       j = j +1
+               else:
+                   break
                get_percent = (self.buf * i / file_size * 100)
                os.system('cls' if os.name == 'nt' else 'clear')
                print('\r[{0}] {1}%'.format('#'*(int(get_percent/2)), get_percent))
                print("current_size / total_size =", self.buf * i, "/", file_size)
-               i = i + 1
+               print("Error rate : ", 100 - ((i - j ) / i) * 100, "%")
+               if(i * self.buf > file_size):
+                   break
 
+           
+            if(md5.hexdigest() == data_md.decode('utf-8')):
+                print("ok")
+                os.system('cls' if os.name == 'nt' else 'clear')
+                print('\r[{0}] {1}%'.format('#'*(int(get_percent/2)), 100))
+                print("current_size / total_size =", file_size , "/", file_size)
+                print("%s receive finished!" % file_name)
             else:
-                if(md5.hexdigest() == data_md.decode('utf-8')):
-                    print("ok")
-                    os.system('cls' if os.name == 'nt' else 'clear')
-                    print('\r[{0}] {1}%'.format('#'*(int(get_percent/2)), 100))
-                    print("current_size / total_size =", file_size , "/", file_size)
-                    print("%s receive finished!" % file_name)
-                else:
-                    print("Receive failed..")
-                print("Error rate : ", ((i - j ) / i) * 100, "%")
+                print("Receive failed..")
+            print("Error rate : ", ((i - j ) / i) * 100, "%")
 
 
-                print("(send)md5: ",data_md.decode('utf-8'))
-                print("(recv)md5: ",md5.hexdigest())
+            print("(send)md5: ", data_md.decode('utf-8'))
+            print("(recv)md5: ", md5.hexdigest())
 
-                f.close()
-                break;
+            f.close()
+            break;
 
     def main(self):
         self.socket_send()
