@@ -43,7 +43,7 @@ class ClientSocket():
 
                    hash_data = hashlib.md5(data).hexdigest()
                    md5.update(data)
-                   hash_recv = hash_recv.decode('utf-8')
+                   hash_recv = hash_recv.decode(errors='replace').strip()
                
                    if(hash_recv == hash_data):
                        print(hash_data)
