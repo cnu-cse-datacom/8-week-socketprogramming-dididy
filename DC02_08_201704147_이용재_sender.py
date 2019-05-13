@@ -38,7 +38,7 @@ class ClientSocket():
             if(self.socket.sendto(data, self.addr)):
                 hash_data = hashlib.md5(data)
                 print ("dst:" + FLAGS.ip + " file_name:" + file_name)
-                self.socket.sendto(hash_data.hexdigest().encode('utf-8'), self.addr)
+                self.socket.sendto(hash_data.hexdigest().encode('utf-8').strip(), self.addr)
                 time.sleep(0.02)
 	
                 data = f.read(self.buf)
